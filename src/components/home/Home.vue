@@ -1,7 +1,11 @@
+// parte inicial da pagina, recebe o conteudo com os paineis // de imagem o
+buscador os botoes com funcionalidade e o acesso // ao home e cadastro
 <template>
   <div>
     <h1 class="centralizado">{{ titulo }}</h1>
     <p class="centralizado">{{ mensagem }}</p>
+    <!-- input que recebe a busca do usuario atraves do titulo
+    da imagem -->
     <input
       type="search"
       class="filtro"
@@ -11,13 +15,20 @@
 
     <ul class="lista-fotos">
       <li class="lista-fotos-item" v-for="foto of fotosComFiltro">
+        <!-- painel que recebe a imagem e os botoes de alterar e remover
+     alem do titulo da imgem com a sua respectiva descrição  -->
         <meu-painel :titulo="foto.titulo">
           <imagem-responsiva
             v-meu-transform.animate="15"
             :url="foto.url"
             :titulo="foto.titulo"
           />
-          <router-link :to="{ name : 'altera', params: { id: foto._id } }"> <meu-botao tipo="button" rotulo="ALTERAR" /> </router-link>
+          <!-- botoes que acessam a função de alterar e remover o painel -->
+          <router-link :to="{ name: 'altera', params: { id: foto._id } }">
+            <!-- botao de alteracao -->
+            <meu-botao tipo="button" rotulo="ALTERAR" />
+          </router-link>
+          <!-- botao de remocao -->
           <meu-botao
             tipo="button"
             rotulo="REMOVER"
@@ -32,6 +43,7 @@
 </template>
 
 <script>
+// importaçoes que trazem os componentes para o uso
 import Painel from "../shared/painel/Painel.vue";
 import ImagemResponsiva from "../shared/imagem-responsiva/ImagemResponsiva.vue";
 import Botao from "../shared/botao/Botao.vue";
@@ -39,16 +51,19 @@ import transform from "../../directives/Transform";
 import FotoService from "../../domain/foto/FotoService";
 
 export default {
+  // componenents sao instancias do vue reutilizaveis
+  // nela sao passadas as funções criadas nos componentes
+  // e dentro de template são trazidos os componentes para uso
   components: {
     "meu-painel": Painel,
     "imagem-responsiva": ImagemResponsiva,
     "meu-botao": Botao,
   },
-
+  // sao componentes que alteram o estado de visualização
   directives: {
     "meu-transform": transform,
   },
-
+  
   data() {
     return {
       titulo: "Alurapic",
@@ -78,8 +93,7 @@ export default {
           this.mensagem = "Foto removida com sucesso";
         },
         (err) => {
-          console.log(err);
-          this.mensagem = "Não foi possivel remover a foto";
+          this.mensagem = err.message;
         }
       );
     },
@@ -87,11 +101,13 @@ export default {
 
   created() {
     this.service = new FotoService(this.$resource);
-
-    this.service
-    .lista()
-    .then(fotos => this.fotos = fotos, err => console.log(err));
-  }
+    this.service.lista().then(
+      (fotos) => (this.fotos = fotos),
+      (err) => {
+        this.mensagem = err.message;
+      }
+    );
+  },
 };
 </script>
 
